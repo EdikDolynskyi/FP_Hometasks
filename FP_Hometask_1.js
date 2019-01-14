@@ -89,4 +89,4 @@ const transform = (data) => {
     print(matrix, fail);
 };
 
-transform(data);
+// transform(data);
