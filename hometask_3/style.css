@@ -1,0 +1,72 @@
+.menu {
+    display: inline;
+}
+
+.menu-items {
+    display: inline-block;
+    margin-left: 10px;
+}
+
+.menu-items select {
+    max-width: 170px;
+}
+
+.menu-multiselect {
+    display: inline;
+    margin-left: 10px;
+}
+
+.multiselect {
+    width: 200px;
+    position: fixed;
+    display: inline;
+}
+
+.selectBox {
+    position: relative;
+}
+
+.selectBox select {
+    width: 100%;
+    font-weight: bold;
+}
+
+.overSelect {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+}
+
+#tag-items {
+    display: none;
+    border: 1px #dadada solid;
+}
+
+#tag-items label {
+    display: block;
+}
+
+#tag-items label:hover {
+    background-color: #1e90ff;
+}
+
+.containerHeader {
+    display: inline-block;   
+}
+
+.containerMenu {
+    display: inline-block;   
+}
+
+.title {
+    display: block;
+    font-size: 1.3em;
+}
+
+.author {
+    display: block;
+    font-style: italic;
+    font-size: 1em;
+}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en" data-framework="javascript">
+	<head>
+		<meta charset="utf-8">
+		<title>Books</title>
+		<link rel="stylesheet" href="style.css">
+	</head>
+	<body>
+		<section class="booksapp">
+			<header class="header">
+				<h1>Books</h1>
+                <button>Add new book</button>
+                <div class="menu">
+					<div class="menu-items">
+						<label>Read</label>
+						<input type="checkbox" id="isRead">
+					</div>
+					<div class="menu-items">
+						<label>Author</label>
+						<select id="author">
+							<option value="none">None</option>
+						</select>
+					</div>
+					<div class="menu-items">
+						<label>Date</label>
+						<select id="date">
+							<option value="none">None</option>
+						</select>
+					</div>
+					<div class="menu-multiselect">
+						<label>Tags</label>
+						<div class="multiselect">
+							<div class="selectBox" id="selectBox">
+								<select>
+									<option>Select an option</option>
+								</select>
+							<div class="overSelect"></div>
+						</div>
+						<div id="tag-items"></div>
+					</div>
+				</div>		
+			</header>
+			<section class="main">
+				<ul class="books" id="books"></ul>
+			</section>
+			<footer class="footer">
+				<span class="count"></span>
+			</footer>
+		</section>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.2/immutable.min.js"></script>
+		<script src="storage.js"></script>
+		<script src="script.js"></script>
+	</body>
+</html>
