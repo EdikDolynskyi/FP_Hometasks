@@ -8,26 +8,7 @@
     const dateElem = getElementById("date");
     const tagItemsElem = getElementById("tag-items");
     const tagSelectBoxElem = getElementById("selectBox");
-    const modal = getElementById('modal');
-    const addBookBtn = getElementById('addBook');
-    const cancelBtn = getElementById('cancel');
-    const saveBtn = getElementById('save');
-    const isReadModalInput = getElementById('isReadModalInput');
-    const titleModalInput = getElementById('titleModalInput');
-    const authorModalInput = getElementById('authorModalInput');
-    const publishingHouseModalInput = getElementById('publishingHouseModalInput');
-    const dateModalInput = getElementById('dateModalInput');
-    const tagsModalInput = getElementById('tagsModalInput');
-    
-
-    const viewState = {
-        expandedMultiSelect: false,
-        isModalShown: false
-    }; 
-    
-    const setState = (keyword, value) => {
-        viewState[keyword] = value;
-    };
+    let expandedMultiSelect = false;
 
     const eventHandling = () => {
         isReadElem.onclick = () => render();
@@ -35,57 +16,18 @@
         dateElem.onchange = () => render();
         tagItemsElem.onchange = () => render();
         tagSelectBoxElem.onclick = () => showCheckboxes();
-        addBookBtn.onclick = () => showModal();
-        cancelBtn.onclick = () => showModal();
-        saveBtn.onclick = () => addNewBook();
+        addBookBtn.onclick = () => addNewBook();
+        pubsub.subscribe('render', () => render());
     };
 
     const showCheckboxes = () => {
-        const style = viewState.expandedMultiSelect ? 'none' : 'block';
+        const style = expandedMultiSelect ? 'none' : 'block';
         tagItemsElem.style.display = style;
-        setState('expandedMultiSelect', !viewState.expandedMultiSelect);
+        expandedMultiSelect = !expandedMultiSelect;
     };
 
-    const showModal = () => {
-        const style = viewState.isModalShown ? 'none' : 'block';
-        modal.style.display = style;
-        setState('isModalShown', !viewState.isModalShown);
-    };
-
-    const clearModal = () => {
-        isReadModalInput.checked = false;
-        titleModalInput.value = '';
-        authorModalInput.value = '';
-        publishingHouseModalInput.value = '';
-        dateModalInput.value;
-        // tagsModalInput.value = '';
-    };
-
-    const addNewBook = () => {
-        const isRead = isReadModalInput.checked;
-        const title = titleModalInput.value;
-        const author = authorModalInput.value;
-        const publishingHouse = publishingHouseModalInput.value;
-        const date = dateModalInput.value;
-        // const tags = tagsModalInput.value;
-
-        storage.addEntity({
-            isRead,
-            title,
-            author,
-            publishingHouse,
-            date
-        });
-        clearModal();
-        showModal();
-        render();
-    };
-
-    const editBook = (id) => {
-        storage.removeEntity(id);
-        render();
-    };
-
+    const addNewBook = () => modal.addBook();
+    const editBook = (id) => modal.editBook(id);
     const deleteBook = (id) => {
         storage.removeEntity(id);
         render();
@@ -93,44 +35,18 @@
 
     const getListItem = (data) => {
         const { id, title, author, publishingHouse, date, tags, isRead } = data;
-        const container = createElement('li');
-        const containerHeader = createElement('div');
-        const containerMenu = createElement('div');
-
+         
         const getTitleEl = (title) => {
             const el = createElement('span');
             el.innerText = title;
             el.className = 'title';
             return el;
         };
-    
-        const getAuthorEl = (autor) => {
+
+        const getDetailsEl = (value, keyword) => {
             const el = createElement('span');
-            el.innerText = `author: ${autor}`;
-            el.className = 'author';
-            return el;
-        };
-    
-        const getIsReadEl = (isRead) => {
-            const el = createElement('span');
-            el.checked = isRead;
-            return el;
-        };
-    
-        const getDateEl = (date) => {
-            const el = createElement('span');
-            el.innerText = `Date: ${date}`;
-            return el;
-        };
-    
-        const getPublishingHouseEl = (publishingHouse) => {
-            const el = createElement('span');
-            el.innerText = `Publishing House: ${publishingHouse}`;
-            return el;
-        };
-    
-        const getTagsEl = (tags) => {
-            const el = createElement('span');
+            el.innerText = `${keyword}: ${value}`;
+            el.className = keyword;
             return el;
         };
 
@@ -143,38 +59,61 @@
             return btn;  
         };
 
-        const titleEl = getTitleEl(title);
-        const authorEl = getAuthorEl(author);
-        const isReadEl = getIsReadEl(isRead);
-        const publishingHouseEl = getPublishingHouseEl(publishingHouse);
-        const dateEl = getDateEl(date);
-        const tagsEl = getTagsEl(tags);
-        const detailsText = createElement('span');
-        const detailsEl = createElement('div');
+        const getDetailsText = () => {
+            const detailsText = createElement('span');
+            detailsText.innerText = 'Details';
+            return detailsText;
+        };
+        
+        const getDetailsElement = (detailsText, publishingHouseEl, dateEl, tagsEl) => {
+            const detailsEl = createElement('div');
+            detailsEl.className = 'details';
+            detailsEl.append(detailsText);
+            detailsEl.append(publishingHouseEl);
+            detailsEl.append(dateEl);
+            detailsEl.append(tagsEl);
+            return detailsEl;
+        };
+
+        const getContainerHeader = (isReadEl, titleEl, authorEl) => {
+            const containerHeader = createElement('div');
+            containerHeader.className = 'containerHeader';
+            containerHeader.append(isReadEl);
+            containerHeader.append(titleEl);
+            containerHeader.append(authorEl);
+            return containerHeader;
+        };
+
+        const getContainerMenu = (deleteButton, editButton) => {
+            const containerMenu = createElement('div');
+            containerMenu.className = 'containerMenu';
+            containerMenu.append(deleteButton);
+            containerMenu.append(editButton);
+            return containerMenu;
+        };
+
+        const getContainer = (containerHeader, containerMenu, detailsEl) => {
+            const container = createElement('li');
+            container.id = id;
+            container.append(containerHeader);
+            container.append(containerMenu);
+            container.append(detailsEl);
+            return container;
+        };
+
         const deleteButton = getItemButton('Delete', deleteBook, id);
         const editButton = getItemButton('Edit', editBook, id);
-
-        detailsText.innerText = 'Details';
-        detailsEl.className = 'details';
-        detailsEl.append(detailsText);
-        detailsEl.append(publishingHouseEl);
-        detailsEl.append(dateEl);
-        detailsEl.append(tagsEl);
-        
-        containerHeader.className = 'containerHeader';
-        containerHeader.append(isReadEl);
-        containerHeader.append(titleEl);
-        containerHeader.append(authorEl);
-        
-        containerMenu.className = 'containerMenu';
-        containerMenu.append(deleteButton);
-        containerMenu.append(editButton);
-
-        container.id = id;
-        container.append(containerHeader);
-        container.append(containerMenu);
-        container.append(detailsEl);
-        return container;
+        const titleEl = getTitleEl(title);
+        const isReadEl = getDetailsEl(isRead, 'is read');
+        const authorEl = getDetailsEl(author, 'author');
+        const publishingHouseEl = getDetailsEl(publishingHouse, 'Publishing House');
+        const dateEl = getDetailsEl(date, 'Date');
+        const tagsEl = getDetailsEl(tags, 'Tags');
+        const detailsText = getDetailsText();
+        const detailsEl = getDetailsElement(detailsText, publishingHouseEl, dateEl, tagsEl);
+        const containerHeader = getContainerHeader(isReadEl, titleEl, authorEl);
+        const containerMenu = getContainerMenu(deleteButton, editButton);
+        return getContainer(containerHeader, containerMenu, detailsEl);;
     };
 
     const getSelectedTags = (tagItemsElem) => {
@@ -182,14 +121,6 @@
         return [...allInputs].filter(item => {
             return item.checked;
         }).map(item => item.value);
-    }
-
-    const getViewParams = () => {
-        const isRead = isReadElem.checked;
-        const author = autorElem.options[autorElem.selectedIndex].text;
-        const date = dateElem.options[dateElem.selectedIndex].text;
-        const tags = getSelectedTags(tagItemsElem);
-        return { isRead, author, date, tags };
     };
 
     const updateFilterOptions = () => {
@@ -201,9 +132,7 @@
         }, Immutable.List([])).toSet().toList();
 
         const addOptions = (el, options) => {
-            options.forEach(option => {
-                el.options.add( new Option(option, option));
-            });
+            options.forEach(option => el.options.add( new Option(option, option)));
         };
     
         const addTagOptions = (el, options) => {
@@ -227,21 +156,24 @@
     };
 
     const render = () => {
+        const getViewParams = () => {
+            const isRead = isReadElem.checked;
+            const author = autorElem.options[autorElem.selectedIndex].text;
+            const date = dateElem.options[dateElem.selectedIndex].text;
+            const tags = getSelectedTags(tagItemsElem);
+            return { isRead, author, date, tags };
+        };
+
         const uploadList = (viewParams) => {
             const filteredList = storage.getFilterEntites(viewParams);
             booksElem.innerHTML = '';
             filteredList.forEach(item => booksElem.appendChild(getListItem(item)));
         };
 
-        const viewParams = getViewParams();
-        uploadList(viewParams);
+        uploadList(getViewParams());
     };
 
-    const initialisation = () => {
-        eventHandling();
-        updateFilterOptions();
-        render();
-    };
-
-    initialisation();
+    eventHandling();
+    updateFilterOptions();
+    render();
 })();

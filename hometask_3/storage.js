@@ -28,6 +28,8 @@ const Books = [
     }
 ];
 
+const getId = () => (Date.now().toString(36) + Math.random().toString(36).substr(2, 5)).toUpperCase();
+
 storage = {
     books: Immutable.List(Books),
     getList() {
@@ -36,12 +38,16 @@ storage = {
     getIndex(id) {
         return this.books.findIndex(item => item.id === id);
     },
-    addEntity(entity) {
-        this.books = this.books.push(entity);
+    getEntity(id) {
+        return this.books.find(item => item.id === id);
     },
-    editEntity(id, entity) {
+    addEntity(entity) {
+        const id = getId();
+        this.books = this.books.push({ ...entity, id });
+    },
+    updateEntity(id, entity) {
         const oldEntityIndex = this.getIndex(id);
-        const updater = (item) => mergeDeep(item, entity);
+        const updater = (item) => Immutable.mergeDeep(item, entity);
         this.books = this.books.update(oldEntityIndex, updater);
     },
     removeEntity(id) {
