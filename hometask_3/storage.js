@@ -47,5 +47,19 @@ storage = {
     removeEntity(id) {
         const itemIndex = this.getIndex(id);
         this.books = this.books.delete(itemIndex)
+    },
+    getFilterEntites(params) {
+        const hasTags = (tags, itemTags) => {
+            const hasTags = tags.length && itemTags.length;
+            return !hasTags || tags.filter(value => itemTags.includes(value)).length;
+        };
+    
+        const hasParam = (currParam, currItem) => {
+            const isArray = Array.isArray(currParam);
+            return isArray ? hasTags(currParam, currItem) : currParam === currItem;
+        };
+
+        const filterKeys = Object.keys(params).filter(item => params[item] !== 'None');
+        return this.books.filter(item => filterKeys.every(key => hasParam(params[key], item[key])));
     }
 };

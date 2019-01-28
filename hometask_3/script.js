@@ -8,20 +8,141 @@
     const dateElem = getElementById("date");
     const tagItemsElem = getElementById("tag-items");
     const tagSelectBoxElem = getElementById("selectBox");
-    let expandedMultiSelect = false;
+    const modal = getElementById('modal');
+    const addBookBtn = getElementById('addBook');
+    const cancelBtn = getElementById('cancel');
+    const saveBtn = getElementById('save');
+    const isReadModalInput = getElementById('isReadModalInput');
+    const titleModalInput = getElementById('titleModalInput');
+    const authorModalInput = getElementById('authorModalInput');
+    const publishingHouseModalInput = getElementById('publishingHouseModalInput');
+    const dateModalInput = getElementById('dateModalInput');
+    const tagsModalInput = getElementById('tagsModalInput');
+    
 
-    isReadElem.onclick = () => render();
-    autorElem.onchange = () => render();
-    dateElem.onchange = () => render();
-    tagItemsElem.onchange = () => render();
-    tagSelectBoxElem.onclick = () => showCheckboxes();
+    const viewState = {
+        expandedMultiSelect: false,
+        isModalShown: false
+    }; 
+    
+    const setState = (keyword, value) => {
+        viewState[keyword] = value;
+    };
 
+    const eventHandling = () => {
+        isReadElem.onclick = () => render();
+        autorElem.onchange = () => render();
+        dateElem.onchange = () => render();
+        tagItemsElem.onchange = () => render();
+        tagSelectBoxElem.onclick = () => showCheckboxes();
+        addBookBtn.onclick = () => showModal();
+        cancelBtn.onclick = () => showModal();
+        saveBtn.onclick = () => addNewBook();
+    };
+
+    const showCheckboxes = () => {
+        const style = viewState.expandedMultiSelect ? 'none' : 'block';
+        tagItemsElem.style.display = style;
+        setState('expandedMultiSelect', !viewState.expandedMultiSelect);
+    };
+
+    const showModal = () => {
+        const style = viewState.isModalShown ? 'none' : 'block';
+        modal.style.display = style;
+        setState('isModalShown', !viewState.isModalShown);
+    };
+
+    const clearModal = () => {
+        isReadModalInput.checked = false;
+        titleModalInput.value = '';
+        authorModalInput.value = '';
+        publishingHouseModalInput.value = '';
+        dateModalInput.value;
+        // tagsModalInput.value = '';
+    };
+
+    const addNewBook = () => {
+        const isRead = isReadModalInput.checked;
+        const title = titleModalInput.value;
+        const author = authorModalInput.value;
+        const publishingHouse = publishingHouseModalInput.value;
+        const date = dateModalInput.value;
+        // const tags = tagsModalInput.value;
+
+        storage.addEntity({
+            isRead,
+            title,
+            author,
+            publishingHouse,
+            date
+        });
+        clearModal();
+        showModal();
+        render();
+    };
+
+    const editBook = (id) => {
+        storage.removeEntity(id);
+        render();
+    };
+
+    const deleteBook = (id) => {
+        storage.removeEntity(id);
+        render();
+    };
 
     const getListItem = (data) => {
         const { id, title, author, publishingHouse, date, tags, isRead } = data;
         const container = createElement('li');
         const containerHeader = createElement('div');
         const containerMenu = createElement('div');
+
+        const getTitleEl = (title) => {
+            const el = createElement('span');
+            el.innerText = title;
+            el.className = 'title';
+            return el;
+        };
+    
+        const getAuthorEl = (autor) => {
+            const el = createElement('span');
+            el.innerText = `author: ${autor}`;
+            el.className = 'author';
+            return el;
+        };
+    
+        const getIsReadEl = (isRead) => {
+            const el = createElement('span');
+            el.checked = isRead;
+            return el;
+        };
+    
+        const getDateEl = (date) => {
+            const el = createElement('span');
+            el.innerText = `Date: ${date}`;
+            return el;
+        };
+    
+        const getPublishingHouseEl = (publishingHouse) => {
+            const el = createElement('span');
+            el.innerText = `Publishing House: ${publishingHouse}`;
+            return el;
+        };
+    
+        const getTagsEl = (tags) => {
+            const el = createElement('span');
+            return el;
+        };
+
+        const getItemButton = (text, event, id) => {
+            const btn = createElement('button');
+            btn.innerHTML = text;
+            btn.onclick = function() {
+                return event(id);
+            };
+            return btn;  
+        };
+
         const titleEl = getTitleEl(title);
         const authorEl = getAuthorEl(author);
         const isReadEl = getIsReadEl(isRead);
@@ -30,8 +151,8 @@
         const tagsEl = getTagsEl(tags);
         const detailsText = createElement('span');
         const detailsEl = createElement('div');
-        const deleteButton = getDeleteButton(id);
-        const editButton = getEditButton(id);
+        const deleteButton = getItemButton('Delete', deleteBook, id);
+        const editButton = getItemButton('Edit', editBook, id);
 
         detailsText.innerText = 'Details';
         detailsEl.className = 'details';
@@ -39,7 +160,6 @@
         detailsEl.append(publishingHouseEl);
         detailsEl.append(dateEl);
         detailsEl.append(tagsEl);
-        
         
         containerHeader.className = 'containerHeader';
         containerHeader.append(isReadEl);
@@ -57,100 +177,6 @@
         return container;
     };
 
-    const getTitleEl = (title) => {
-        const el = createElement('span');
-        el.innerText = title;
-        el.className = 'title';
-        return el;
-    };
-
-    const getAuthorEl = (autor) => {
-        const el = createElement('span');
-        el.innerText = `author: ${autor}`;
-        el.className = 'author';
-        return el;
-    };
-
-    const getIsReadEl = (isRead) => {
-        const el = createElement('span');
-        el.innerText = isRead;
-        return el;
-    };
-
-    const getDateEl = (date) => {
-        const el = createElement('span');
-        el.innerText = date;
-        return el;
-    };
-
-    const getPublishingHouseEl = (publishingHouse) => {
-        const el = createElement('span');
-        el.innerText = publishingHouse;
-        return el;
-    };
-
-    const getTagsEl = (tags) => {
-        const el = createElement('span');
-        el.innerText = tags;
-        return el;
-    };
-
-    const getDeleteButton = (id) => {
-        const btn = createElement('button');
-        btn.innerHTML = 'Delete';
-        btn.onclick = function() {
-            return deleteItem(id);
-        };
-        return btn;  
-    };
-
-    const getEditButton = (id) => {
-        const btn = createElement('button');
-        btn.innerHTML = 'Edit';
-        return btn;  
-    };
-
-
-
-
-    const showCheckboxes = () => {
-        const tagItems = document.getElementById("tag-items");
-        if (!expandedMultiSelect) {
-            tagItems.style.display = "block";
-            expandedMultiSelect = true;
-        } else {
-            tagItems.style.display = "none";
-            expandedMultiSelect = false;
-        }
-    };
-
-
-
-
-    const hasTags = (tags, itemTags) => {
-        const hasTags = tags.length && itemTags.length;
-        return !hasTags || tags.filter(value => itemTags.includes(value)).length;
-    };
-
-    const hasParam = (currParam, currItem) => {
-        const isArray = Array.isArray(currParam);
-        return isArray ? hasTags(currParam, currItem) : currParam === currItem;
-    };
-    
-    const filterEntites = (list, params) => {
-        const filterKeys = Object.keys(params).filter(item => params[item] !== 'None');
-        return list.filter(item => filterKeys.every(key => hasParam(params[key], item[key])));
-    };
-
-    const uploadList = (list, viewParams) => {
-        const filteredList = filterEntites(list, viewParams);
-        booksElem.innerHTML = '';
-        filteredList.forEach(item => {
-            const el = getListItem(item);
-            booksElem.appendChild(el);
-        });
-    };
-
     const getSelectedTags = (tagItemsElem) => {
         const allInputs = tagItemsElem.getElementsByTagName('input');
         return [...allInputs].filter(item => {
@@ -166,12 +192,6 @@
         return { isRead, author, date, tags };
     };
 
-    const render = () => {
-        const booksData = storage.getList();
-        const viewParams = getViewParams();
-        uploadList(booksData, viewParams);
-    };
-
     const updateFilterOptions = () => {
         const booksData = storage.getList();
         const autors = booksData.map(item => item.author).toSet().toList();
@@ -180,37 +200,48 @@
             return accum.concat(curValue.tags);
         }, Immutable.List([])).toSet().toList();
 
+        const addOptions = (el, options) => {
+            options.forEach(option => {
+                el.options.add( new Option(option, option));
+            });
+        };
+    
+        const addTagOptions = (el, options) => {
+            options.forEach(option => {
+                const input = createElement('input');
+                input.type = 'checkbox';
+                input.value = option;
+                input.id = option;
+    
+                const label = createElement('label');
+                label.htmlFor = option;
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(option));            
+                el.append(label);
+            });
+        };
+
         addOptions(autorElem, autors);
         addOptions(dateElem, dates);
         addTagOptions(tagItemsElem, tags);
     };
 
-    const addOptions = (el, options) => {
-        options.forEach(option => {
-            el.options.add( new Option(option, option));
-        });
+    const render = () => {
+        const uploadList = (viewParams) => {
+            const filteredList = storage.getFilterEntites(viewParams);
+            booksElem.innerHTML = '';
+            filteredList.forEach(item => booksElem.appendChild(getListItem(item)));
+        };
+
+        const viewParams = getViewParams();
+        uploadList(viewParams);
     };
 
-    const addTagOptions = (el, options) => {
-        options.forEach(option => {
-            const input = createElement('input');
-            input.type = 'checkbox';
-            input.value = option;
-            input.id = option;
-
-            const label = createElement('label');
-            label.htmlFor = option;
-            label.appendChild(input);
-            label.appendChild(document.createTextNode(option));            
-            el.append(label);
-        });
-    };
-
-    const deleteItem = (id) => {
-        storage.removeEntity(id);
+    const initialisation = () => {
+        eventHandling();
+        updateFilterOptions();
         render();
     };
 
-    updateFilterOptions();
-    render();
+    initialisation();
 })();

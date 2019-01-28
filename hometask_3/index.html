@@ -6,10 +6,10 @@
 		<link rel="stylesheet" href="style.css">
 	</head>
 	<body>
-		<section class="booksapp">
+		<section class="app">
 			<header class="header">
 				<h1>Books</h1>
-                <button>Add new book</button>
+                <button class="addBook" id="addBook">Add new book</button>
                 <div class="menu">
 					<div class="menu-items">
 						<label>Read</label>
@@ -46,6 +46,40 @@
 			<footer class="footer">
 				<span class="count"></span>
 			</footer>
+		</section>
+		<section class="modal" id="modal" style="display: none">
+			<div class="from-input">
+				<label for="isReadModalInput">Is Read</label>
+				<input type="checkbox" id="isReadModalInput"/>
+			</div>
+			<div class="from-input">
+				<label for="titleModalInput">Title</label>
+				<input type="text" id="titleModalInput"/>
+			</div>
+			<div class="from-input">
+				<label for="authorModalInput">Author</label>
+				<input type="text" id="authorModalInput"/>
+			</div>
+			<div class="from-input">
+				<label for="publishingHouseModalInput">Publishing House</label>
+				<input type="text" id="publishingHouseModalInput"/>
+			</div>
+			<div class="from-input">
+				<label for="dateModalInput">Date</label>
+				<input type="text" id="dateModalInput"/>
+			</div>
+			<div class="from-input">
+				<label for="choseTagsModalInput">Chose tag</label>
+				<select id="choseTagsModalInput"></select>
+				<label for="addTagsModalInput">Add new tag</label>
+				<input type="text" id="addTagsModalInput"/>
+				<label for="tagsModalInput">Tags</label>
+				<input type="text" id="tagsModalInput"/>
+			</div>
+			<div class="from-footer"></div>
+				<button class="modal-button" id="cancel">Cancel</button>
+				<button class="modal-button" id="save">Save</button>
+			</div>
 		</section>
 		<script src="https://cdnjs.cloudflare.com/ajax/libs/immutable/3.8.2/immutable.min.js"></script>
 		<script src="storage.js"></script>
